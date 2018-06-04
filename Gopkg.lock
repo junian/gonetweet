@@ -38,6 +38,12 @@
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
+  version = "v1.2.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
@@ -46,6 +52,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "07ba7893bd88b7bcf6990d5acd60345a0f7333b693cdfd8ae57a4c761ea1f2f7"
+  inputs-digest = "a558cc165d360cbeca3da030b4968304f9d02723edbade2b3d54add54802066f"
   solver-name = "gps-cdcl"
   solver-version = 1
