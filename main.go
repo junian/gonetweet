@@ -44,23 +44,18 @@ func main() {
 		IncludeEmail: twitter.Bool(true),
 	}
 	user, _, _ := client.Accounts.VerifyCredentials(verifyParams)
-	fmt.Printf("User's ACCOUNT:\n%+v\n", user)
+	fmt.Printf("User's ACCOUNT: %v\n", user.ScreenName)
 
-	// Home Timeline
-	homeTimelineParams := &twitter.HomeTimelineParams{
-		Count:     2,
-		TweetMode: "extended",
-	}
-	tweets, _, _ := client.Timelines.HomeTimeline(homeTimelineParams)
-	fmt.Printf("User's HOME TIMELINE:\n%+v\n", tweets)
+	var tweets []twitter.Tweet
 
-	// Mention Timeline
-	mentionTimelineParams := &twitter.MentionTimelineParams{
-		Count:     2,
-		TweetMode: "extended",
+	userTimelineParams := &twitter.UserTimelineParams{
+		IncludeRetweets: twitter.Bool(true),
 	}
-	tweets, _, _ = client.Timelines.MentionTimeline(mentionTimelineParams)
-	fmt.Printf("User's MENTION TIMELINE:\n%+v\n", tweets)
+	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
+	fmt.Println("User's TIMELINE:")
+	for _, tweet := range tweets {
+		fmt.Println(tweet.Entities.Hashtags)
+	}
 
 	// Retweets of Me Timeline
 	retweetTimelineParams := &twitter.RetweetsOfMeTimelineParams{
@@ -68,9 +63,8 @@ func main() {
 		TweetMode: "extended",
 	}
 	tweets, _, _ = client.Timelines.RetweetsOfMeTimeline(retweetTimelineParams)
-	fmt.Printf("User's 'RETWEETS OF ME' TIMELINE:\n%+v\n", tweets)
-
-	// Update (POST!) Tweet (uncomment to run)
-	// tweet, _, _ := client.Statuses.Update("just setting up my twttr", nil)
-	// fmt.Printf("Posted Tweet\n%v\n", tweet)
+	fmt.Println("User's 'RETWEETS OF ME' TIMELINE:")
+	for _, tweet := range tweets {
+		fmt.Println(tweet.FullText)
+	}
 }
