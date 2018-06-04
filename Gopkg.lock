@@ -8,10 +8,22 @@
   version = "v2.0.0"
 
 [[projects]]
+  name = "github.com/coreos/pkg"
+  packages = ["flagutil"]
+  revision = "97fdf19511ea361ae1c100dd393cc47f8dcfa1e1"
+  version = "v4"
+
+[[projects]]
   branch = "master"
   name = "github.com/dghubble/go-twitter"
   packages = ["twitter"]
   revision = "093ee2cf4e32ef608cded0ace84d5d82a52da4fa"
+
+[[projects]]
+  name = "github.com/dghubble/oauth1"
+  packages = ["."]
+  revision = "70562a5920ad9b6ff03ef697c0f90ae569abbd2b"
+  version = "v0.4.0"
 
 [[projects]]
   name = "github.com/dghubble/sling"
@@ -34,6 +46,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ac83286da24ba649cb61d9700761d7fb79ff79be0afd83021ef1dd271bdf1dea"
+  inputs-digest = "07ba7893bd88b7bcf6990d5acd60345a0f7333b693cdfd8ae57a4c761ea1f2f7"
   solver-name = "gps-cdcl"
   solver-version = 1
