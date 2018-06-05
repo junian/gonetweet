@@ -5,12 +5,25 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/joho/godotenv"
 )
+
+func extractDuration(hashtag string) (int, int, int) {
+	match, _ := regexp.MatchString(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`, hashtag)
+
+	fmt.Println(hashtag + ": " + strconv.FormatBool(match))
+	d := 0
+	h := 0
+	m := 0
+
+	return d, h, m
+}
 
 func main() {
 	err := godotenv.Load()
@@ -54,7 +67,10 @@ func main() {
 	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
 	fmt.Println("User's TIMELINE:")
 	for _, tweet := range tweets {
-		fmt.Println(tweet.Entities.Hashtags)
+		for _, hashtag := range tweet.Entities.Hashtags {
+			extractDuration(hashtag.Text)
+
+		}
 	}
 
 	// Retweets of Me Timeline
