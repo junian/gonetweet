@@ -87,17 +87,22 @@ func main() {
 
 		day, hour, minute := 0, 0, 0
 
-		for _, hashtag := range tweet.Entities.Hashtags {
-			d, h, m := extractDuration(hashtag.Text)
-			day += d
-			hour += h
-			minute += m
+		if tweet.Retweeted {
+			day = 1
+		} else {
+			for _, hashtag := range tweet.Entities.Hashtags {
+				d, h, m := extractDuration(hashtag.Text)
+				day += d
+				hour += h
+				minute += m
+			}
 		}
+
 		if day == 0 && hour == 0 && minute == 0 {
 			fmt.Println("Skipping ...")
 			continue
 		}
-		fmt.Printf("%d %d %d\n", day, hour, minute)
+
 		now := time.Now().UTC()
 		then := time.Date(
 			created.Year(),
@@ -110,11 +115,14 @@ func main() {
 			time.UTC)
 
 		if then.Before(now) {
-			statusDestroyParams := &twitter.StatusDestroyParams{}
-			client.Statuses.Destroy(tweet.ID, statusDestroyParams)
+			if tweet.Retweeted {
+				statusUnretweetParams := &twitter.StatusUnretweetParams{}
+				client.Statuses.Unretweet(tweet.ID, statusUnretweetParams)
+			} else {
+				statusDestroyParams := &twitter.StatusDestroyParams{}
+				client.Statuses.Destroy(tweet.ID, statusDestroyParams)
+			}
 			fmt.Println("Delete this now")
-		} else {
-			fmt.Println("Delete in the future")
 		}
 	}
 }
