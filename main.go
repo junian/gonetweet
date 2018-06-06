@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
@@ -15,12 +16,25 @@ import (
 )
 
 func extractDuration(hashtag string) (int, int, int) {
-	match, _ := regexp.MatchString(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`, hashtag)
+	r, _ := regexp.Compile(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`)
 
-	fmt.Println(hashtag + ": " + strconv.FormatBool(match))
+	found := r.FindStringSubmatch(hashtag)
+
 	d := 0
 	h := 0
 	m := 0
+
+	if s, err := strconv.Atoi(found[1]); err == nil {
+		d = s
+	}
+
+	if s, err := strconv.Atoi(found[2]); err == nil {
+		h = s
+	}
+
+	if s, err := strconv.Atoi(found[3]); err == nil {
+		m = s
+	}
 
 	return d, h, m
 }
@@ -67,9 +81,42 @@ func main() {
 	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
 	fmt.Println("User's TIMELINE:")
 	for _, tweet := range tweets {
+		fmt.Println(tweet.Text)
+		created, _ := tweet.CreatedAtTime()
+		created = created.UTC()
+		fmt.Println(tweet.Retweeted)
+		day, hour, minute := 0, 0, 0
 		for _, hashtag := range tweet.Entities.Hashtags {
-			extractDuration(hashtag.Text)
+			d, h, m := extractDuration(hashtag.Text)
+			day += d
+			hour += h
+			minute += m
+		}
+		if day == 0 && hour == 0 && minute == 0 {
+			fmt.Println("Skipping ...")
+			continue
+		}
+		fmt.Printf("%d %d %d\n", day, hour, minute)
+		now := time.Now().UTC()
+		then := time.Date(
+			created.Year(),
+			created.Month(),
+			created.Day()+day,
+			created.Hour()+hour,
+			created.Minute()+minute,
+			created.Second(),
+			created.Nanosecond(),
+			time.UTC)
+		fmt.Println(created)
+		fmt.Println(then)
+		fmt.Println(now)
+		if then.Before(now) {
 
+			statusDestroyParams := &twitter.StatusDestroyParams{}
+			client.Statuses.Destroy(tweet.ID, statusDestroyParams)
+			fmt.Println("Delete this now")
+		} else {
+			fmt.Println("Delete in the future")
 		}
 	}
 
@@ -78,6 +125,7 @@ func main() {
 		Count:     2,
 		TweetMode: "extended",
 	}
+
 	tweets, _, _ = client.Timelines.RetweetsOfMeTimeline(retweetTimelineParams)
 	fmt.Println("User's 'RETWEETS OF ME' TIMELINE:")
 	for _, tweet := range tweets {
