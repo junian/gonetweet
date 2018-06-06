@@ -15,32 +15,32 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func extractInt(value string) int {
+	if s, err := strconv.Atoi(value); err == nil {
+		return s
+	}
+	return 0
+}
+
 func extractDuration(hashtag string) (int, int, int) {
-	r, _ := regexp.Compile(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`)
-
-	found := r.FindStringSubmatch(hashtag)
-
 	d := 0
 	h := 0
 	m := 0
 
-	if s, err := strconv.Atoi(found[1]); err == nil {
-		d = s
-	}
+	r, _ := regexp.Compile(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`)
 
-	if s, err := strconv.Atoi(found[2]); err == nil {
-		h = s
-	}
+	found := r.FindStringSubmatch(hashtag)
 
-	if s, err := strconv.Atoi(found[3]); err == nil {
-		m = s
-	}
+	d = extractInt(found[1])
+	h = extractInt(found[2])
+	m = extractInt(found[3])
 
 	return d, h, m
 }
 
 func main() {
 	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -50,7 +50,9 @@ func main() {
 	consumerSecret := flags.String("consumer-secret", "", "Twitter Consumer Secret")
 	accessToken := flags.String("access-token", "", "Twitter Access Token")
 	accessSecret := flags.String("access-secret", "", "Twitter Access Secret")
+
 	flags.Parse(os.Args[1:])
+
 	flagutil.SetFlagsFromEnv(flags, "TWITTER")
 
 	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
@@ -59,6 +61,7 @@ func main() {
 
 	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
 	token := oauth1.NewToken(*accessToken, *accessSecret)
+
 	// OAuth1 http.Client will automatically authorize Requests
 	httpClient := config.Client(oauth1.NoContext, token)
 
@@ -71,21 +74,25 @@ func main() {
 		IncludeEmail: twitter.Bool(true),
 	}
 	user, _, _ := client.Accounts.VerifyCredentials(verifyParams)
-	fmt.Printf("User's ACCOUNT: %v\n", user.ScreenName)
+	fmt.Printf("Username: %v\n", user.ScreenName)
 
 	var tweets []twitter.Tweet
 
 	userTimelineParams := &twitter.UserTimelineParams{
 		IncludeRetweets: twitter.Bool(true),
 	}
+
 	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
-	fmt.Println("User's TIMELINE:")
+
+	fmt.Println("User's timeline:")
 	for _, tweet := range tweets {
-		fmt.Println(tweet.Text)
 		created, _ := tweet.CreatedAtTime()
 		created = created.UTC()
+
 		fmt.Println(tweet.Retweeted)
+
 		day, hour, minute := 0, 0, 0
+
 		for _, hashtag := range tweet.Entities.Hashtags {
 			d, h, m := extractDuration(hashtag.Text)
 			day += d
@@ -107,28 +114,13 @@ func main() {
 			created.Second(),
 			created.Nanosecond(),
 			time.UTC)
-		fmt.Println(created)
-		fmt.Println(then)
-		fmt.Println(now)
-		if then.Before(now) {
 
+		if then.Before(now) {
 			statusDestroyParams := &twitter.StatusDestroyParams{}
 			client.Statuses.Destroy(tweet.ID, statusDestroyParams)
 			fmt.Println("Delete this now")
 		} else {
 			fmt.Println("Delete in the future")
 		}
-	}
-
-	// Retweets of Me Timeline
-	retweetTimelineParams := &twitter.RetweetsOfMeTimelineParams{
-		Count:     2,
-		TweetMode: "extended",
-	}
-
-	tweets, _, _ = client.Timelines.RetweetsOfMeTimeline(retweetTimelineParams)
-	fmt.Println("User's 'RETWEETS OF ME' TIMELINE:")
-	for _, tweet := range tweets {
-		fmt.Println(tweet.FullText)
 	}
 }
