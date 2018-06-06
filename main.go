@@ -23,9 +23,7 @@ func extractInt(value string) int {
 }
 
 func extractDuration(hashtag string) (int, int, int) {
-	d := 0
-	h := 0
-	m := 0
+	d, h, m := 0, 0, 0
 
 	r, _ := regexp.Compile(`(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m?)?`)
 
@@ -39,11 +37,7 @@ func extractDuration(hashtag string) (int, int, int) {
 }
 
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
 
 	flags := flag.NewFlagSet("user-auth", flag.ExitOnError)
 	consumerKey := flags.String("consumer-key", "", "Twitter Consumer Key")
@@ -51,9 +45,9 @@ func main() {
 	accessToken := flags.String("access-token", "", "Twitter Access Token")
 	accessSecret := flags.String("access-secret", "", "Twitter Access Secret")
 
-	flags.Parse(os.Args[1:])
-
 	flagutil.SetFlagsFromEnv(flags, "TWITTER")
+
+	flags.Parse(os.Args[1:])
 
 	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
 		log.Fatal("Consumer key/secret and Access token/secret required")
