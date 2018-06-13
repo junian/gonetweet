@@ -74,6 +74,8 @@ func main() {
 
 	userTimelineParams := &twitter.UserTimelineParams{
 		IncludeRetweets: twitter.Bool(true),
+		ExcludeReplies:  twitter.Bool(false),
+		TweetMode:       "extended",
 	}
 
 	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
@@ -82,8 +84,6 @@ func main() {
 	for _, tweet := range tweets {
 		created, _ := tweet.CreatedAtTime()
 		created = created.UTC()
-
-		fmt.Println(tweet.Retweeted)
 
 		day, hour, minute := 0, 0, 0
 
