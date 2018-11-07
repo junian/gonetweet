@@ -1,0 +1,5 @@
+theme: jekyll-theme-cayman
+title: gonetweet
+description: Automatic Tweet Deletion using Hashtag as Expiration Time, written in Go Programming Language.
+show_downloads: true
+google_analytics: UA-90418854-6
