@@ -16,6 +16,10 @@ cp .env.example .env
 
 Fill the `.env` content based on your Twitter / X API credentials.
 
+Then run `./gonetweet` to delete tweets automatically.
+
+Use `cron` job to run the binary for every minute.
+
 ## Examples
 
 Use hashtag to schedule the deletion.
@@ -27,7 +31,7 @@ Use hashtag to schedule the deletion.
 This post will be deleted in 1 day:
 
 ```
-I like fried chieckedn #1d
+I like fried chiecken #1d
 ```
 
 This post will be deleted in 1 day, 3 hours from the posted date:
