@@ -1,6 +1,6 @@
 # gonetweet
 
-Automatic tweet / X post destruction written in go
+Automatic tweet / X post destruction written in Go.
 
 ## Installation
 
